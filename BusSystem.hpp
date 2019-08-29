@@ -36,5 +36,9 @@ namespace Bus {
         }
         std::vector<ModuleInfo> listModules();
         std::vector<FunctionId> listFunctions(Name interface);
+        template <typename T>
+        std::vector<FunctionId> list() {
+            return listFunctions(T::getInterface());
+        }
     };
 }  // namespace Bus
