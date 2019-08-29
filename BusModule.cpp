@@ -1,6 +1,4 @@
 #include "BusModule.hpp"
-#include "BusCommon.cpp"
-#include "BusReporter.cpp"
 #include "BusSystem.hpp"
 
 namespace Bus {

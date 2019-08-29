@@ -1,6 +1,4 @@
 #include "BusSystem.hpp"
-#include "BusCommon.cpp"
-#include "BusReporter.cpp"
 
 #include "Windows.h"
 
