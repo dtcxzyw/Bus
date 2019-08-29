@@ -5,26 +5,6 @@
 #include <sstream>
 
 namespace Bus {
-    ModuleFunctionBase::ModuleFunctionBase(ModuleInstance& instance)
-        : mInstance(instance) {}
-    fs::path ModuleFunctionBase::modulePath() {
-        return mInstance.getModulePath();
-    }
-    ModuleSystem& ModuleFunctionBase::system() {
-        return mInstance.getSystem();
-    }
-    Reporter& ModuleFunctionBase::reporter() {
-        return system().getReporter();
-    }
-    explicit ModuleInstance::ModuleInstance(const fs::path& path,
-                                            ModuleSystem& system)
-        : mModulePath(path), mSystem(system) {}
-    fs::path ModuleInstance::getModulePath() const {
-        return mModulePath;
-    }
-    ModuleSystem& ModuleInstance::getSystem() {
-        return mSystem;
-    }
     GUID str2GUID(const std::string& guid) {
         std::regex pat("\\{[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}\\}",
                        std::regex::ECMAScript | std::regex::nosubs);

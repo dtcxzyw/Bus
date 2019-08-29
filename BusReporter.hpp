@@ -1,9 +1,9 @@
 #pragma once
+#include "BusCommon.hpp"
 #include <exception>
 #include <functional>
 #include <map>
 #include <mutex>
-#include <string>
 #include <vector>
 
 namespace Bus {
