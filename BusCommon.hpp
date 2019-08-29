@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace Bus {
     namespace fs = std::experimental::filesystem;
@@ -26,4 +27,16 @@ namespace Bus {
     class ModuleInstance;
     class Reporter;
     class ModuleFunctionBase;
+
+    struct ModuleInfo final {
+        Name name;
+        GUID guid;
+        Name busVersion;
+        Name version;
+        Name description;
+        Name copyright;
+        std::vector<Name> thirdPartySearchPath;
+        fs::path modulePath;
+    };
+
 }  // namespace Bus

@@ -1,5 +1,7 @@
 #pragma once
 #include "BusCommon.hpp"
+#include <functional>
+#include <map>
 
 namespace Bus {
     class ModuleLibrary : private Unmoveable {

@@ -16,17 +16,6 @@ namespace Bus {
         virtual ~ModuleFunctionBase() = default;
     };
 
-    struct ModuleInfo final {
-        Name name;
-        GUID guid;
-        Name busVersion;
-        Name version;
-        Name description;
-        Name copyright;
-        std::vector<Name> thirdPartySearchPath;
-        fs::path modulePath;
-    };
-
     class ModuleInstance : private Unmoveable {
     protected:
         fs::path mModulePath;
