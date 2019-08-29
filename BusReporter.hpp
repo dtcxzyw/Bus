@@ -21,7 +21,6 @@ namespace Bus {
     Bus::SourceLocation(MODULE, __FILE__, __FUNCTION__, __LINE__)
     using ReportFunction = std::function<void(ReportLevel, const std::string&,
                                               const SourceLocation& srcLoc)>;
-    using TraceFunction = std::function<void(const SourceLocation&)>;
 
     class Reporter final : private Unmoveable {
     private:

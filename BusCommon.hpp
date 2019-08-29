@@ -25,10 +25,8 @@ namespace Bus {
     class ModuleInstance;
 
     class ModuleFunctionBase : private Unmoveable {
-    private:
-        ModuleInstance& mInstance;
-
     protected:
+        ModuleInstance& mInstance;
         fs::path modulePath();
         ModuleSystem& system();
         Reporter& reporter();
