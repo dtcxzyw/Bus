@@ -33,8 +33,8 @@ namespace Bus {
                    const SourceLocation& loc);
     };
 
-#define BUS_TRACE_BEGIN(MODULE)                       \
-    SourceLocation _bus_srcloc_ = BUS_SRCLOC(MODULE); \
+#define BUS_TRACE_BEGIN(MODULE)                            \
+    Bus::SourceLocation _bus_srcloc_ = BUS_SRCLOC(MODULE); \
     try
 #define BUS_TRACE_THROW(ex)       \
     _bus_srcloc_.line = __LINE__; \
