@@ -75,7 +75,7 @@ namespace Bus {
                 auto tsp = mInstance->info().thirdPartySearchPath;
                 auto base = path.parent_path();
                 for(auto p : tsp)
-                    addModuleSearchPath(base / p, mReporter);
+                    addModuleSearchPath(base / p.data(), mReporter);
                 mModule = tmp.module;
                 tmp.module = NULL;
             }
