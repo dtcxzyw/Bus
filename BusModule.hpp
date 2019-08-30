@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace Bus {
-#define BUS_API __declspec(dllexport)
+#define BUS_API extern "C" __declspec(dllexport)
 
     class ModuleFunctionBase : private Unmoveable {
     protected:
