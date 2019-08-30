@@ -72,6 +72,10 @@ namespace Bus {
                 if(!mInstance)
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to init module " + path.string()));
+                auto tsp = mInstance->info().thirdPartySearchPath;
+                auto base = path.parent_path();
+                for(auto p : tsp)
+                    addModuleSearchPath(base / p, mReporter);
                 mModule = tmp.module;
                 tmp.module = NULL;
             }
