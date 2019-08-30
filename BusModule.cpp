@@ -13,7 +13,7 @@ namespace Bus {
     Reporter& ModuleFunctionBase::reporter() {
         return system().getReporter();
     }
-    explicit ModuleInstance::ModuleInstance(const fs::path& path,
+    ModuleInstance::ModuleInstance(const fs::path& path,
                                             ModuleSystem& system)
         : mModulePath(path), mSystem(system) {}
     fs::path ModuleInstance::getModulePath() const {

@@ -1,5 +1,5 @@
 #include "BusSystem.hpp"
-
+#include "BusReporter.hpp"
 #include "Windows.h"
 
 namespace Bus {

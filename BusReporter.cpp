@@ -6,7 +6,7 @@ namespace Bus {
         mActions[level].emplace_back(function);
     }
     void Reporter::apply(ReportLevel level, const std::string& message,
-                         const SourceLocation& loc) const {
+                         const SourceLocation& loc) {
         std::lock_guard guard(mMutex);
         auto iter = mActions.find(level);
         if(iter == mActions.cend())

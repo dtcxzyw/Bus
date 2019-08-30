@@ -30,7 +30,7 @@ namespace Bus {
     public:
         void addAction(ReportLevel level, const ReportFunction& function);
         void apply(ReportLevel level, const std::string& message,
-                   const SourceLocation& loc) const;
+                   const SourceLocation& loc);
     };
 
 #define BUS_TRACE_BEGIN(MODULE)                       \
