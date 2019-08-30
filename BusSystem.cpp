@@ -134,7 +134,8 @@ namespace Bus {
         std::vector<FunctionId> funcs;
         for(auto inst : mInstances) {
             auto res = inst.second->getInstance()->list(api);
-            funcs.insert(funcs.end(), res.begin(), res.end());
+            for(auto name : res)
+                funcs.emplace_back(inst.first, name);
         }
         return funcs;
     }
