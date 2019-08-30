@@ -37,7 +37,7 @@ namespace Bus {
             return std::dynamic_pointer_cast<T>(instantiateImpl(id));
         }
         std::vector<ModuleInfo> listModules();
-        std::vector<FunctionId> listFunctions(Name interface);
+        std::vector<FunctionId> listFunctions(Name interfaceName);
         template <typename T>
         std::vector<FunctionId> list() {
             return listFunctions(T::getInterface());

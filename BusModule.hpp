@@ -26,7 +26,7 @@ namespace Bus {
         fs::path getModulePath() const;
         ModuleSystem& getSystem();
         virtual ModuleInfo info() const = 0;
-        virtual std::vector<Name> list(Name interface) const = 0;
+        virtual std::vector<Name> list(Name interfaceName) const = 0;
         virtual std::shared_ptr<ModuleFunctionBase> instantiate(Name name) = 0;
         virtual ~ModuleInstance() = default;
     };

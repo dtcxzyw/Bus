@@ -130,10 +130,10 @@ namespace Bus {
             res.emplace_back(inst.second->getInstance()->info());
         return res;
     }
-    std::vector<FunctionId> ModuleSystem::listFunctions(Name api) {
+    std::vector<FunctionId> ModuleSystem::listFunctions(Name interfaceName) {
         std::vector<FunctionId> funcs;
         for(auto inst : mInstances) {
-            auto res = inst.second->getInstance()->list(api);
+            auto res = inst.second->getInstance()->list(interfaceName);
             for(auto name : res)
                 funcs.emplace_back(inst.first, name);
         }
