@@ -65,9 +65,10 @@ namespace Bus {
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to init module " + path.string() + '\n' +
                         winerr2String(GetLastError())));
-                using InitCall = std::shared_ptr<Bus::ModuleInstance> (*)(
-                    const Bus::fs::path& path, Bus::ModuleSystem& system);
-                mInstance = reinterpret_cast<InitCall>(address)(path, system);
+                using InitCall =
+                    void (*)(const fs::path& path, ModuleSystem& system,
+                             std::shared_ptr<ModuleInstance>& instance);
+                reinterpret_cast<InitCall>(address)(path, system, mInstance);
                 if(!mInstance)
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to init module " + path.string()));
