@@ -48,7 +48,7 @@ namespace Bus {
     public:
         explicit Win32Module(const fs::path& path, ModuleSystem& system)
             : mReporter(system.getReporter()) {
-            BUS_TRACE_BEGIN("BusSystem::Win32Module") {
+            BUS_TRACE_BEGIN("BusSystem.Win32Module") {
                 ModuleHolder tmp(
                     LoadLibraryExW(path.c_str(), NULL,
                                    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
@@ -146,5 +146,95 @@ namespace Bus {
     }
     Reporter& ModuleSystem::getReporter() {
         return *mReporter;
+    }
+    std::pair<GUID, std::string> ModuleSystem::parse(const std::string& name,
+                                                     Name interfaceName) {
+        size_t pos = name.find_last_of('.');
+        if(pos == name.npos) {
+            GUID id;
+            unsigned count = 0;
+            for(auto inst : mInstances) {
+                auto res = inst.second->getInstance()->list(interfaceName);
+                for(auto&& func : res)
+                    if(func == name) {
+                        ++count, id = inst.first;
+                        if(count > 1)
+                            break;
+                    }
+                if(count > 1)
+                    break;
+            }
+            if(count == 1)
+                return std::make_pair(id, name);
+            if(count == 0)
+                mReporter->apply(ReportLevel::Error,
+                                 "No function called " + name + " [interface=" +
+                                     interfaceName.data() + "]",
+                                 BUS_SRCLOC("BusSystem"));
+            else
+                mReporter->apply(ReportLevel::Error,
+                                 "One or more multiply defined function.Please "
+                                 "use GUID instead of name.",
+                                 BUS_SRCLOC("BusSystem"));
+            return {};
+        } else {
+            auto pre = name.substr(0, pos);
+            auto nxt = name.substr(pos + 1);
+            GUID id(0, 0);
+            try {
+                id = str2GUID(pre);
+            } catch(...) {
+            }
+            if(id.first == 0 && id.second == 0) {
+                unsigned count = 0;
+                for(auto inst : mInstances) {
+                    auto res = inst.second->getInstance();
+                    if(res->info().name == name) {
+                        for(auto func : res->list(interfaceName))
+                            if(nxt == func) {
+                                ++count;
+                                id = inst.first;
+                            }
+                    }
+                    if(count > 1)
+                        break;
+                }
+                if(count == 1)
+                    return std::make_pair(id, nxt);
+                if(count == 0)
+                    mReporter->apply(ReportLevel::Error,
+                                     "No function called " + name +
+                                         " [interface=" + interfaceName.data() +
+                                         "].",
+                                     BUS_SRCLOC("BusSystem"));
+                else
+                    mReporter->apply(
+                        ReportLevel::Error,
+                        "One or more multiply defined function.Please "
+                        "use GUID instead of name.",
+                        BUS_SRCLOC("BusSystem"));
+                return {};
+            } else {
+                auto iter = mInstances.find(id);
+                if(iter == mInstances.end()) {
+                    mReporter->apply(ReportLevel::Error,
+                                     "No module's GUID is " + pre + ".",
+                                     BUS_SRCLOC("BusSystem"));
+                    return {};
+                }
+                for(auto func :
+                    iter->second->getInstance()->list(interfaceName))
+                    if(func == nxt)
+                        return std::make_pair(id, nxt);
+                mReporter->apply(
+                    ReportLevel::Error,
+                    "Module " + pre + " [name=" +
+                        iter->second->getInstance()->info().name.data() +
+                        "] doesn't have function called " + nxt +
+                        " [interface=" + interfaceName.data() + "].",
+                    BUS_SRCLOC("BusSystem"));
+                return {};
+            }
+        }
     }
 }  // namespace Bus

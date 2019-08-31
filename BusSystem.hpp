@@ -23,6 +23,8 @@ namespace Bus {
         std::shared_ptr<Reporter> mReporter;
         std::map<GUID, std::shared_ptr<ModuleLibrary>> mInstances;
         std::shared_ptr<ModuleFunctionBase> instantiateImpl(FunctionId id);
+        std::pair<GUID, std::string> parse(const std::string& name,
+                                           Name interfaceName);
         bool load(std::shared_ptr<ModuleLibrary> library);
 
     public:
@@ -41,6 +43,12 @@ namespace Bus {
         template <typename T>
         std::vector<FunctionId> list() {
             return listFunctions(T::getInterface());
+        }
+        template <typename T>
+        std::shared_ptr<T> instantiateByName(const std::string& name) {
+            auto id = parse(name, T::getInterface());
+            FunctionId fid(id.first, id.second);
+            return instantiate<T>(fid);
         }
     };
 }  // namespace Bus
