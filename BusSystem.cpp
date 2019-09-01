@@ -2,6 +2,9 @@
 #include "BusModule.hpp"
 #include "BusReporter.hpp"
 #include "Windows.h"
+#ifdef BUS_MSVC_DELAYLOAD
+#include <delayimp.h>
+#endif
 
 namespace Bus {
     static std::string winerr2String(DWORD code) {
@@ -11,6 +14,47 @@ namespace Bus {
             return "Error Code:" + std::to_string(code) + "\nReason:" + buf;
         return "Unknown Error(Code:" + std::to_string(code) + ")";
     }
+
+#ifdef BUS_MSVC_DELAYLOAD
+    static Reporter* pReporter;
+    FARPROC WINAPI notify(unsigned dliNotify, PDelayLoadInfo pdli) {
+        if(dliNotify == dliNotePreLoadLibrary) {
+            if(pReporter)
+                pReporter->apply(ReportLevel::Info,
+                                 std::string("loading ") + pdli->szDll,
+                                 BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
+            return LoadLibraryExA(pdli->szDll, NULL,
+                                  LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
+                                      LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
+                                      LOAD_LIBRARY_SEARCH_USER_DIRS |
+                                      LOAD_LIBRARY_SEARCH_SYSTEM32);
+        }
+        return NULL;
+    }
+    FARPROC WINAPI failure(unsigned dliNotify, PDelayLoadInfo pdli) {
+        if(pReporter) {
+            if(dliNotify == dliFailGetProc) {
+                std::string prog = pdli->dlp.fImportByName ?
+                    std::string(pdli->dlp.szProcName) :
+                    std::to_string(pdli->dlp.dwOrdinal);
+                pReporter->apply(ReportLevel::Error,
+                                 "Failed to get function " + prog +
+                                     "'s address in module " + pdli->szDll,
+                                 BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
+            }
+            if(dliNotify == dliFailLoadLib) {
+                pReporter->apply(ReportLevel::Error,
+                                 "Failed to load module " + pdli->szDll,
+                                 BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
+            }
+        }
+        return NULL;
+    }
+    static void setHelper() {
+        __pfnDliNotifyHook2 = notify;
+        __pfnDliFailureHook2 = failure;
+    }
+#endif
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter) {
         if(AddDllDirectory(path.c_str()) == 0)
@@ -113,7 +157,12 @@ namespace Bus {
     }
 
     ModuleSystem::ModuleSystem(std::shared_ptr<Reporter> reporter)
-        : mReporter(reporter) {}
+        : mReporter(mreporter) {
+#ifdef BUS_MSVC_DELAYLOAD
+        pReporter = mReporter.get();
+        setHelper();
+#endif
+    }
     bool ModuleSystem::load(std::shared_ptr<ModuleLibrary> library) {
         GUID guid = library->getInstance()->info().guid;
         auto iter = mInstances.find(guid);
@@ -236,5 +285,10 @@ namespace Bus {
                 return {};
             }
         }
+    }
+    ~ModuleSystem() {
+#ifdef BUS_MSVC_DELAYLOAD
+        pReporter = nullptr;
+#endif
     }
 }  // namespace Bus

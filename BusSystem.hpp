@@ -29,6 +29,7 @@ namespace Bus {
 
     public:
         explicit ModuleSystem(std::shared_ptr<Reporter> reporter);
+        ~ModuleSystem();
         Reporter& getReporter();
         bool loadModuleFile(const fs::path& path);
         bool wrapBuiltin(
