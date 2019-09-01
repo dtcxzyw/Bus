@@ -53,10 +53,8 @@ namespace Bus {
         }
         return NULL;
     }
-    static void setHelper() {
-        __pfnDliNotifyHook2 = notify;
-        __pfnDliFailureHook2 = failure;
-    }
+    PfnDliHook __pfnDliNotifyHook2 = notify;
+    PfnDliHook __pfnDliFailureHook2 = failure;
 #endif
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter) {
@@ -163,7 +161,6 @@ namespace Bus {
         : mReporter(reporter) {
 #ifdef BUS_MSVC_DELAYLOAD
         pReporter = mReporter.get();
-        setHelper();
 #endif
     }
     bool ModuleSystem::load(std::shared_ptr<ModuleLibrary> library) {
