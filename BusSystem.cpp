@@ -189,7 +189,7 @@ namespace Bus {
                 unsigned count = 0;
                 for(auto inst : mInstances) {
                     auto res = inst.second->getInstance();
-                    if(res->info().name == name) {
+                    if(res->info().name == pre) {
                         for(auto func : res->list(interfaceName))
                             if(nxt == func) {
                                 ++count;
