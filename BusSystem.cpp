@@ -3,6 +3,7 @@
 #include "BusReporter.hpp"
 #include "Windows.h"
 #ifdef BUS_MSVC_DELAYLOAD
+#define DELAYIMP_INSECURE_WRITABLE_HOOKS
 #include <delayimp.h>
 #endif
 
@@ -23,11 +24,12 @@ namespace Bus {
                 pReporter->apply(ReportLevel::Info,
                                  std::string("loading ") + pdli->szDll,
                                  BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
-            return LoadLibraryExA(pdli->szDll, NULL,
-                                  LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
-                                      LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                                      LOAD_LIBRARY_SEARCH_USER_DIRS |
-                                      LOAD_LIBRARY_SEARCH_SYSTEM32);
+            return reinterpret_cast<FARPROC>(
+                LoadLibraryExA(pdli->szDll, NULL,
+                               LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
+                                   LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
+                                   LOAD_LIBRARY_SEARCH_USER_DIRS |
+                                   LOAD_LIBRARY_SEARCH_SYSTEM32));
         }
         return NULL;
     }
@@ -44,7 +46,8 @@ namespace Bus {
             }
             if(dliNotify == dliFailLoadLib) {
                 pReporter->apply(ReportLevel::Error,
-                                 "Failed to load module " + pdli->szDll,
+                                 "Failed to load module " +
+                                     std::string(pdli->szDll),
                                  BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
             }
         }
