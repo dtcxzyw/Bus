@@ -37,9 +37,7 @@ namespace Bus {
 #define BUS_TRACE_BEGIN(MODULE)                            \
     Bus::SourceLocation _bus_srcloc_ = BUS_SRCLOC(MODULE); \
     try
-#define BUS_TRACE_THROW(ex)       \
-    _bus_srcloc_.line = __LINE__; \
-    throw(ex)
+#define BUS_TRACE_THROW(ex) _bus_srcloc_.line = __LINE__, throw(ex)
 #define BUS_TRACE_END()                       \
     catch(...) {                              \
         std::throw_with_nested(_bus_srcloc_); \
