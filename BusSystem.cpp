@@ -4,6 +4,7 @@
 #include "Windows.h"
 #ifdef BUS_MSVC_DELAYLOAD
 #define DELAYIMP_INSECURE_WRITABLE_HOOKS
+#pragma comment(lib, "delayimp.lib")
 #include <delayimp.h>
 #endif
 
@@ -53,8 +54,6 @@ namespace Bus {
         }
         return NULL;
     }
-    PfnDliHook __pfnDliNotifyHook2 = notify;
-    PfnDliHook __pfnDliFailureHook2 = failure;
 #endif
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter) {
@@ -292,3 +291,8 @@ namespace Bus {
 #endif
     }
 }  // namespace Bus
+
+#ifdef BUS_MSVC_DELAYLOAD
+PfnDliHook __pfnDliNotifyHook2 = notify;
+PfnDliHook __pfnDliFailureHook2 = failure;
+#endif
