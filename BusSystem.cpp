@@ -293,6 +293,6 @@ namespace Bus {
 }  // namespace Bus
 
 #ifdef BUS_MSVC_DELAYLOAD
-PfnDliHook __pfnDliNotifyHook2 = notify;
-PfnDliHook __pfnDliFailureHook2 = failure;
+PfnDliHook __pfnDliNotifyHook2 = Bus::notify;
+PfnDliHook __pfnDliFailureHook2 = Bus::failure;
 #endif
