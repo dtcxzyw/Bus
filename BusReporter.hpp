@@ -8,7 +8,7 @@
 
 namespace Bus {
     enum class ReportLevel { Warning, Debug, Error, Info };
-    struct SourceLocation final {
+    struct SourceLocation {
         const char* module;
         const char* srcFile;
         const char* functionName;
@@ -17,6 +17,7 @@ namespace Bus {
                        const char* functionName, int line)
             : module(module), srcFile(srcFile), functionName(functionName),
               line(line) {}
+        virtual ~SourceLocation();
     };
 #define BUS_SRCLOC(MODULE) \
     Bus::SourceLocation(MODULE, __FILE__, __FUNCTION__, __LINE__)
