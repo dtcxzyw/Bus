@@ -15,7 +15,8 @@ namespace Bus {
         int line;
         SourceLocation(const char* module, const char* srcFile,
                        const char* functionName, int line)
-            : srcFile(srcFile), functionName(functionName), line(line) {}
+            : module(module), srcFile(srcFile), functionName(functionName),
+              line(line) {}
     };
 #define BUS_SRCLOC(MODULE) \
     Bus::SourceLocation(MODULE, __FILE__, __FUNCTION__, __LINE__)
