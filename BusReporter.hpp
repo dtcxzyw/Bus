@@ -17,7 +17,7 @@ namespace Bus {
                        const char* functionName, int line)
             : module(module), srcFile(srcFile), functionName(functionName),
               line(line) {}
-        virtual ~SourceLocation();
+        virtual ~SourceLocation() = default;
     };
 #define BUS_SRCLOC(MODULE) \
     Bus::SourceLocation(MODULE, __FILE__, __FUNCTION__, __LINE__)
