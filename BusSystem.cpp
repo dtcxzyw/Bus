@@ -160,7 +160,7 @@ namespace Bus {
     }
 
     ModuleSystem::ModuleSystem(std::shared_ptr<Reporter> reporter)
-        : mReporter(mreporter) {
+        : mReporter(reporter) {
 #ifdef BUS_MSVC_DELAYLOAD
         pReporter = mReporter.get();
         setHelper();
@@ -289,7 +289,7 @@ namespace Bus {
             }
         }
     }
-    ~ModuleSystem() {
+    ModuleSystem::~ModuleSystem() {
 #ifdef BUS_MSVC_DELAYLOAD
         pReporter = nullptr;
 #endif
