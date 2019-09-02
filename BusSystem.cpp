@@ -2,6 +2,7 @@
 #include "BusModule.hpp"
 #include "BusReporter.hpp"
 #include "Windows.h"
+#define BUS_MSVC_DELAYLOAD
 #ifdef BUS_MSVC_DELAYLOAD
 #define DELAYIMP_INSECURE_WRITABLE_HOOKS
 #pragma comment(lib, "delayimp.lib")
@@ -25,12 +26,12 @@ namespace Bus {
                 pReporter->apply(ReportLevel::Info,
                                  std::string("loading ") + pdli->szDll,
                                  BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
-            return reinterpret_cast<FARPROC>(
-                LoadLibraryExA(pdli->szDll, NULL,
-                               LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
-                                   LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                                   LOAD_LIBRARY_SEARCH_USER_DIRS |
-                                   LOAD_LIBRARY_SEARCH_SYSTEM32));
+            HMODULE res = LoadLibraryExA(pdli->szDll, NULL,LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_SEARCH_USER_DIRS |LOAD_LIBRARY_SEARCH_SYSTEM32));
+            if(res == NULL && pReporter)
+                pReporter->apply(ReportLevel::Error,
+                                 winerr2String(GetLastError()),
+                                 BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
+            return reinterpret_cast<FARPROC>(res);
         }
         return NULL;
     }
