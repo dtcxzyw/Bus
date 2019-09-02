@@ -62,6 +62,10 @@ namespace Bus {
 #endif
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter) {
+        if(SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS) == FALSE)
+            reporter.apply(ReportLevel::Error,
+                           "Failed to set default dll directories.",
+                           BUS_SRCLOC("BusSystem"));
         if(AddDllDirectory(path.c_str()) == 0)
             reporter.apply(ReportLevel::Error,
                            "Failed to add dll search path " + path.string() +
