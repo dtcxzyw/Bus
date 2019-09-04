@@ -29,12 +29,11 @@ namespace Bus {
                 pReporter->apply(ReportLevel::Info,
                                  std::string("loading ") + pdli->szDll,
                                  BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
-            HMODULE res =
-                LoadLibraryExA(pdli->szDll, NULL,
-                               LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
-                                   LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                                   LOAD_LIBRARY_SEARCH_USER_DIRS |
-                                   LOAD_LIBRARY_SEARCH_SYSTEM32);
+            HMODULE res = LoadLibraryExA(pdli->szDll, NULL,
+                                         // LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
+                                         LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
+                                             LOAD_LIBRARY_SEARCH_USER_DIRS |
+                                             LOAD_LIBRARY_SEARCH_SYSTEM32);
             if(res == NULL && pReporter)
                 pReporter->apply(
                     ReportLevel::Error,
