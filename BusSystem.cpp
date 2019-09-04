@@ -9,12 +9,16 @@
 #endif
 
 namespace Bus {
-    static std::string winerr2String(DWORD code) {
+    static std::string winerr2String(const std::string& func, DWORD code) {
         char buf[1024];
+        std::string res = "Failed to call function " + func +
+            "\nError Code:" + std::to_string(code) + "\nReason:";
         if(FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buf,
                           sizeof(buf), 0))
-            return "Error Code:" + std::to_string(code) + "\nReason:" + buf;
-        return "Unknown Error(Code:" + std::to_string(code) + ")";
+            res += buf;
+        else
+            res += "Unknown";
+        return res;
     }
 
 #ifdef BUS_MSVC_DELAYLOAD
@@ -32,9 +36,10 @@ namespace Bus {
                                    LOAD_LIBRARY_SEARCH_USER_DIRS |
                                    LOAD_LIBRARY_SEARCH_SYSTEM32);
             if(res == NULL && pReporter)
-                pReporter->apply(ReportLevel::Error,
-                                 winerr2String(GetLastError()),
-                                 BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
+                pReporter->apply(
+                    ReportLevel::Error,
+                    winerr2String("LoadLibraryExA", GetLastError()),
+                    BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
             return reinterpret_cast<FARPROC>(res);
         }
         return NULL;
@@ -63,13 +68,16 @@ namespace Bus {
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter) {
         if(SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS) == FALSE)
-            reporter.apply(ReportLevel::Error,
-                           "Failed to set default dll directories.",
-                           BUS_SRCLOC("BusSystem"));
+            reporter.apply(
+                ReportLevel::Error,
+                "Failed to set default dll directories.\n" +
+                    winerr2String("SetDefaultDllDirectories", GetLastError()),
+                BUS_SRCLOC("BusSystem"));
         if(AddDllDirectory(path.c_str()) == 0)
             reporter.apply(ReportLevel::Error,
                            "Failed to add dll search path " + path.string() +
-                               ":" + winerr2String(GetLastError()),
+                               "\n" +
+                               winerr2String("AddDllDirectory", GetLastError()),
                            BUS_SRCLOC("BusSystem"));
     }
 
@@ -112,12 +120,12 @@ namespace Bus {
                 if(tmp.module == NULL)
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to load module " + path.string() + '\n' +
-                        winerr2String(GetLastError())));
+                        winerr2String("LoadLibraryExW", GetLastError())));
                 FARPROC address = GetProcAddress(tmp.module, "busInitModule");
                 if(!address)
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to init module " + path.string() + '\n' +
-                        winerr2String(GetLastError())));
+                        winerr2String("GetProcAddress", GetLastError())));
                 using InitCall =
                     void (*)(const fs::path& path, ModuleSystem& system,
                              std::shared_ptr<ModuleInstance>& instance);
