@@ -30,10 +30,7 @@ namespace Bus {
                                  std::string("loading ") + pdli->szDll,
                                  BUS_SRCLOC("BusSystem.MSVCDelayLoader"));
             HMODULE res = LoadLibraryExA(pdli->szDll, NULL,
-                                         // LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
-                                         LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                                             LOAD_LIBRARY_SEARCH_USER_DIRS |
-                                             LOAD_LIBRARY_SEARCH_SYSTEM32);
+                                         LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
             if(res == NULL && pReporter)
                 pReporter->apply(
                     ReportLevel::Error,
@@ -106,15 +103,14 @@ namespace Bus {
         std::shared_ptr<ModuleInstance> mInstance;
 
     public:
-        explicit Win32Module(const fs::path& path, ModuleSystem& system)
+        explicit Win32Module(fs::path path, ModuleSystem& system)
             : mReporter(system.getReporter()) {
             BUS_TRACE_BEGIN("BusSystem.Win32Module") {
+                path = fs::absolute(path);
                 ModuleHolder tmp(
                     LoadLibraryExW(path.c_str(), NULL,
                                    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
-                                       LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                                       LOAD_LIBRARY_SEARCH_USER_DIRS |
-                                       LOAD_LIBRARY_SEARCH_SYSTEM32),
+                                       LOAD_LIBRARY_SEARCH_DEFAULT_DIRS),
                     mReporter);
                 if(tmp.module == NULL)
                     BUS_TRACE_THROW(std::runtime_error(
