@@ -40,6 +40,7 @@ namespace Bus {
     try
 #define BUS_TRACE_BEG() BUS_TRACE_BEGIN(_bus_module_name_)
 #define BUS_MODULE_NAME(name) static const char* _bus_module_name_ = name
+#define BUS_DEFSRCLOC() BUS_SRCLOC(_bus_module_name_)
 #define BUS_TRACE_THROW(ex) _bus_srcloc_.line = __LINE__, throw(ex)
 #define BUS_TRACE_END()                       \
     catch(...) {                              \
