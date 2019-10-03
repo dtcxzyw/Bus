@@ -43,6 +43,7 @@ namespace Bus {
 #define BUS_DEFAULT_MODULE_NAME _bus_module_name_
 #define BUS_DEFSRCLOC() BUS_SRCLOC(_bus_module_name_)
 #define BUS_TRACE_THROW(ex) _bus_srcloc_.line = __LINE__, throw(ex)
+#define BUS_TRACE_POINT() _bus_srcloc_.line = __LINE__
 #define BUS_TRACE_END()                       \
     catch(...) {                              \
         std::throw_with_nested(_bus_srcloc_); \
