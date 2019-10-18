@@ -45,6 +45,12 @@ namespace Bus {
         std::vector<FunctionId> list() {
             return listFunctions(T::getInterface());
         }
+        std::shared_ptr<Bus::ModuleFunctionBase>
+        instantiateByName(Name interfaceName, const std::string& name) {
+            auto id = parse(name, interfaceName);
+            FunctionId fid(id.first, id.second);
+            return instantiateImpl(fid);
+        }
         template <typename T>
         std::shared_ptr<T> instantiateByName(const std::string& name) {
             auto id = parse(name, T::getInterface());
