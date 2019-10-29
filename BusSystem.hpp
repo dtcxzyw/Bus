@@ -18,15 +18,19 @@ namespace Bus {
 
     void addModuleSearchPath(const fs::path& path, Reporter& reporter);
 
+    using ExceptionHandler = std::function<void()>;
+
     class ModuleSystem final : private Unmoveable {
     private:
         std::shared_ptr<Reporter> mReporter;
+        ExceptionHandler mHandler;
         std::map<GUID, std::shared_ptr<ModuleLibrary>> mInstances;
         std::shared_ptr<ModuleFunctionBase> instantiateImpl(FunctionId id);
         bool load(std::shared_ptr<ModuleLibrary> library);
 
     public:
-        explicit ModuleSystem(std::shared_ptr<Reporter> reporter);
+        explicit ModuleSystem(std::shared_ptr<Reporter> reporter,
+                              const ExceptionHandler& handler);
         ~ModuleSystem();
         Reporter& getReporter();
         bool loadModuleFile(const fs::path& path);

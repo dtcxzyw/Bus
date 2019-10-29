@@ -103,7 +103,8 @@ namespace Bus {
         std::shared_ptr<ModuleInstance> mInstance;
 
     public:
-        explicit Win32Module(fs::path path, ModuleSystem& system)
+        explicit Win32Module(fs::path path, ModuleSystem& system,
+                             const ExceptionHandler& handler)
             : mReporter(system.getReporter()) {
             BUS_TRACE_BEGIN("BusSystem.Win32Module") {
                 path = fs::absolute(path);
@@ -124,7 +125,12 @@ namespace Bus {
                 using InitCall =
                     void (*)(const fs::path& path, ModuleSystem& system,
                              std::shared_ptr<ModuleInstance>& instance);
-                reinterpret_cast<InitCall>(address)(path, system, mInstance);
+                try {
+                    reinterpret_cast<InitCall>(address)(path, system,
+                                                        mInstance);
+                } catch(...) {
+                    handler();
+                }
                 if(!mInstance)
                     BUS_TRACE_THROW(std::runtime_error(
                         "Failed to init module " + path.string()));
@@ -147,7 +153,7 @@ namespace Bus {
     };
 
     bool ModuleSystem::loadModuleFile(const fs::path& path) {
-        return load(std::make_shared<Win32Module>(path, *this));
+        return load(std::make_shared<Win32Module>(path, *this, mHandler));
     }
 
     class BuiltinWrapper final : public ModuleLibrary {
@@ -168,8 +174,9 @@ namespace Bus {
         return load(std::make_shared<BuiltinWrapper>(gen(*this)));
     }
 
-    ModuleSystem::ModuleSystem(std::shared_ptr<Reporter> reporter)
-        : mReporter(reporter) {
+    ModuleSystem::ModuleSystem(std::shared_ptr<Reporter> reporter,
+                               const ExceptionHandler& handler)
+        : mReporter(reporter), mHandler(handler) {
 #ifdef BUS_MSVC_DELAYLOAD
         pReporter = mReporter.get();
 #endif
