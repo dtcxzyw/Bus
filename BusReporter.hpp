@@ -48,4 +48,18 @@ namespace Bus {
     catch(...) {                              \
         std::throw_with_nested(_bus_srcloc_); \
     }
+#define BUS_TRACE_BEGIN_EX(MODULE)                             \
+    try {                                                      \
+        Bus::SourceLocation _bus_srcloc_ = BUS_SRCLOC(MODULE); \
+        try
+#define BUS_TRACE_BEG_EX() BUS_TRACE_BEGIN_EX(_bus_module_name_)
+#define BUS_TRACE_END_EX(detail)              \
+    catch(...) {                              \
+        std::throw_with_nested(detail);       \
+    }                                         \
+    }                                         \
+    catch(...) {                              \
+        std::throw_with_nested(_bus_srcloc_); \
+    }
+
 }  // namespace Bus
