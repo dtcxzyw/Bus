@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.16.4)
+project(Bus)
+if(WIN32)
+    set(BUS_PLATFORM_WINDOWS ON)
+elseif(APPLE)
+    set(BUS_PLATFORM_MACOSX ON)
+else()
+    set(BUS_PLATFORM_LINUX ON)
+endif()
+
+configure_file (BusSetup.h.in BusSetup.h)
+add_library(Bus SHARED Bus.c)

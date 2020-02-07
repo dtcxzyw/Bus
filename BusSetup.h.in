@@ -1,0 +1,7 @@
+#ifndef _BUSSETUP_H_
+#define _BUSSETUP_H_
+#cmakedefine BUS_PLATFORM_WINDOWS
+#cmakedefine BUS_PLATFORM_LINUX
+#cmakedefine BUS_PLATFORM_MACOSX
+#define BUS_API
+#endif  //_BUSSETUP_H_
