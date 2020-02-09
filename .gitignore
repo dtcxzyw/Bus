@@ -35,4 +35,5 @@
 .vscode
 
 # Bus
+/Build
 BusSetup.h

@@ -4,8 +4,32 @@
 extern "C" {
 #endif
 #include "BusSetup.h"
+#include <stdbool.h>
 #include <stdint.h>
 
+// Setup
+#ifdef BUS_SHARED_LIBRARY
+#if defined(_MSC_VER)
+#ifdef BUS_SHARED_EXPORT
+#define BUS_API __declspec(dllexport)
+#else
+#define BUS_API __declspec(dllimport)
+#endif  // BUS_SHARED_EXPORT
+#elif defined(__GNUC__)
+// GCC
+#ifdef BUS_SHARED_EXPORT
+#define BUS_API __attribute__((visibility("default")))
+#else
+#define BUS_API
+#endif  // BUS_SHARED_EXPORT
+#else
+#error "Your compiler is not supported by Bus."
+#endif  // defined(_MSC_VER)
+#else
+#define BUS_API
+#endif  // BUS_SHARED_LIBRARY
+
+// Common
 typedef struct BUS_API BusGUID_t {
     uint64_t low, high;
 } BusGUID;
@@ -13,23 +37,23 @@ typedef struct BUS_API BusGUID_t {
 // Error
 typedef enum BusResult_enum {
     BUS_SUCCESS = 0,
-    BUS_SYSTEM_ERROR = 1,
-    BUS_GUID_NOT_FOUND = 2,
-    BUS_IMPL_NOT_FOUND = 3,
-    BUS_LIBRARY_NOT_FOUND = 4
+    BUS_ERROR_SYSTEM_EXCEPTION = 1,
+    BUS_ERROR_GUID_NOT_FOUND = 2,
+    BUS_ERROR_IMPL_NOT_FOUND = 3,
+    BUS_ERROR_LIBRARY_NOT_FOUND = 4
 } BusResult;
-BUS_API const char* BusGetErrorString(BusResult res);
+BUS_API const char* busGetErrorString(BusResult res);
 
 // Context
 typedef struct BusCtx_t* BusContext;
-BUS_API BusResult BusInit(BusContext* ctx, int multiThread);
-BUS_API BusResult BusUninit(BusContext ctx);
+BUS_API BusResult busInit(BusContext* ctx, bool multiThread);
+BUS_API BusResult busUninit(BusContext ctx);
 
 // Object
 typedef struct BusObject_t* BusObject;
-BUS_API BusResult BusObjectCreate(BusContext ctx, BusGUID classID,
+BUS_API BusResult busObjectCreate(BusContext ctx, BusGUID classID,
                                   BusObject* obj);
-BUS_API BusResult BusObjectDestory(BusContext ctx, BusObject obj);
+BUS_API BusResult busObjectDestory(BusContext ctx, BusObject obj);
 
 // Trait
 typedef struct BUS_API BusTrait_t {
@@ -81,7 +105,7 @@ typedef struct BusReadOnlyData_t {
     BusDataDeleterTrait free;
 } BusReadOnlyData;
 
-BUS_API void BusFreeData(BusReadOnlyData* data);
+BUS_API void busFreeData(BusReadOnlyData* data);
 
 BUS_TRAIT_BEG(Display) {
     BUS_TRAIT_GUID_DESC{ 0x695DCDCB84F14B6D, 0x97255E4EC605F1FA };
@@ -89,9 +113,15 @@ BUS_TRAIT_BEG(Display) {
 }
 BUS_TRAIT_END(Display);
 
+typedef enum BusEndian_enum {
+    BUS_ENDIAN_BIG = 0,
+    BUS_ENDIAN_LITTLE = 1
+} BusEndian;
+
 BUS_TRAIT_BEG(Serialize) {
     BUS_TRAIT_GUID_DESC{ 0x6AFE2650765C4C86, 0xB38E2A0236D47AFF };
-    BUS_TRAIT_FUNC(BusReadOnlyData, serialize);
+    BUS_TRAIT_FUNC(BusReadOnlyData, serialize, BusEndian endian);
+    BUS_TRAIT_FUNC(void, deserialize, BusReadOnlyData, BusEndian endian);
 }
 BUS_TRAIT_END(Serialize);
 
@@ -103,7 +133,7 @@ BUS_TRAIT_END(Hash);
 
 BUS_TRAIT_BEG(Equal) {
     BUS_TRAIT_GUID_DESC{ 0xC4AACF15C6AA4E0C, 0x97787897AD7A43F1 };
-    BUS_TRAIT_FUNC(int, equal, BusObject rhs);
+    BUS_TRAIT_FUNC(bool, equal, BusObject rhs);
 }
 BUS_TRAIT_END(Equal);
 
@@ -116,14 +146,14 @@ BUS_TRAIT_BEG(Select) {
     BUS_TRAIT_FUNC(BusGUID, best);
 }
 BUS_TRAIT_END(Select);
-BUS_API BusResult BusInstantiateOneImpl(BusContext ctx, BusGUID traitID,
+BUS_API BusResult busInstantiateOneImpl(BusContext ctx, BusGUID traitID,
                                         BusTrait* trait);
-BUS_API BusResult BusSelectAndInstantiateOneImpl(BusContext ctx,
+BUS_API BusResult busSelectAndInstantiateOneImpl(BusContext ctx,
                                                  BusGUID traitID,
                                                  BusSelectTrait selector,
                                                  BusTrait* trait);
-BUS_API BusResult BusViewAs(BusContext ctx, BusGUID traitID, BusTrait* trait);
-BUS_API BusResult BusHasImplFor(BusContext ctx, BusGUID traitID,
+BUS_API BusResult busViewAs(BusContext ctx, BusGUID traitID, BusTrait* trait);
+BUS_API BusResult busHasImplFor(BusContext ctx, BusGUID traitID,
                                 BusGUID classID);
 
 // Plugin API
@@ -133,8 +163,6 @@ typedef struct BusPluginInfo_t {
     const char* desc;
 } BusPluginInfo;
 
-typedef BusResult (*BusCallBack)(BusGUID implID, BusGUID classID);
-
 BUS_TRAIT_BEG(Factory) {
     BUS_TRAIT_GUID_DESC{ 0xAEE0881D549F4919, 0x9142B8CB9793581E };
 }
@@ -143,7 +171,7 @@ BUS_TRAIT_END(Factory);
 BUS_TRAIT_BEG(Plugin) {
     BUS_TRAIT_GUID_DESC{ 0x6F81306CC9CB4512, 0xBAA8AA978FF3F188 };
     BUS_TRAIT_FUNC(void, getInfo, BusPluginInfo* info);
-    BUS_TRAIT_FUNC(void, registerAllImpl, BusCallback implCallback);
+    BUS_TRAIT_FUNC(void, init);
 }
 BUS_TRAIT_END(Plugin);
 
